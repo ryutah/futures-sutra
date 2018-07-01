@@ -1,0 +1,11 @@
+[package]
+name = "futures-sutra"
+version = "0.1.0"
+authors = ["ryutah <ryuta0221@gmail.com>"]
+
+[dependencies]
+log = { version = "*", default-features = false }
+
+[features]
+use_std = []
+default = ["use_std"]
