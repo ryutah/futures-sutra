@@ -16,6 +16,8 @@ use map::Map;
 mod map_err;
 use map_err::MapErr;
 
+mod chain;
+
 macro_rules! if_std {
     ($($i:item)*) => ($(
         #[cfg(feature = "use_std")]
@@ -78,4 +80,12 @@ where
     F: Future<Item = A, Error = B>,
 {
     t
+}
+
+pub trait IntoFuture {
+    type Future: Future<Item = Self::Item, Error = Self::Error>;
+    type Item;
+    type Error;
+
+    fn into_future(self) -> Self::Future;
 }
