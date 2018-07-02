@@ -40,7 +40,7 @@ where
         };
 
         match f(a_result, data)? {
-            Ok(e) => Ok(Async::Ready),
+            Ok(e) => Ok(Async::Ready(e)),
             Err(mut b) => {
                 let ret = b.poll();
                 *self = Chain::Second(b);

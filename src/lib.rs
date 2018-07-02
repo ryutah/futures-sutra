@@ -18,6 +18,9 @@ use map_err::MapErr;
 
 mod chain;
 
+mod then;
+use then::Then;
+
 macro_rules! if_std {
     ($($i:item)*) => ($(
         #[cfg(feature = "use_std")]
@@ -70,8 +73,18 @@ pub trait Future {
     fn map_err<F, E>(self, f: F) -> MapErr<Self, F>
     where
         F: FnOnce(Self::Error) -> E,
+        Self: Sized,
     {
         assert_future::<Self::Item, E, _>(map_err::new(self, f))
+    }
+
+    fn then<F, B>(self, f: F) -> Then<Self, B, F>
+    where
+        F: FnOnce(Result<Self::Item, Self::Error>) -> B,
+        B: IntoFuture,
+        Self: Sized,
+    {
+        assert_future::<B::Item, B::Error, _>(then::new(self, f))
     }
 }
 

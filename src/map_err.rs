@@ -19,7 +19,7 @@ where
 impl<U, A, F> Future for MapErr<A, F>
 where
     A: Future,
-    F: FnOnce<A::Error>,
+    F: FnOnce(A::Error) -> U,
 {
     type Item = A::Item;
     type Error = U;
