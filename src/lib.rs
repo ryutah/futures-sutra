@@ -21,6 +21,9 @@ mod chain;
 mod then;
 use then::Then;
 
+mod and_then;
+use and_then::AndThen;
+
 macro_rules! if_std {
     ($($i:item)*) => ($(
         #[cfg(feature = "use_std")]
@@ -85,6 +88,15 @@ pub trait Future {
         Self: Sized,
     {
         assert_future::<B::Item, B::Error, _>(then::new(self, f))
+    }
+
+    fn and_then<F, B>(self, f: F) -> AndThen<Self, B, F>
+    where
+        F: FnOnce(Self::Item) -> B,
+        B: IntoFuture<Error = Self::Error>,
+        Self: Sized,
+    {
+        assert_future::<B::Item, Self::Error, _>(and_then::new(self, f))
     }
 }
 
