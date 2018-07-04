@@ -24,11 +24,14 @@ use then::Then;
 mod and_then;
 use and_then::AndThen;
 
+mod or_else;
+use or_else::OrElse;
+
 macro_rules! if_std {
     ($($i:item)*) => ($(
-        #[cfg(feature = "use_std")]
-        $i
-    )*)
+            #[cfg(feature = "use_std")]
+            $i
+            )*)
 }
 
 if_std!{
@@ -97,6 +100,15 @@ pub trait Future {
         Self: Sized,
     {
         assert_future::<B::Item, Self::Error, _>(and_then::new(self, f))
+    }
+
+    fn or_else<F, B>(self, f: F) -> OrElse<Self, B, F>
+    where
+        F: FnOnce(Self::Error) -> B,
+        B: IntoFuture<Item = Self::Item>,
+        Self: Sized,
+    {
+        assert_future::<Self::Item, B::Error, _>(or_else::new(self, f))
     }
 }
 
