@@ -27,6 +27,9 @@ use and_then::AndThen;
 mod or_else;
 use or_else::OrElse;
 
+mod select;
+use select::{Select, SelectNext};
+
 macro_rules! if_std {
     ($($i:item)*) => ($(
             #[cfg(feature = "use_std")]
@@ -109,6 +112,19 @@ pub trait Future {
         Self: Sized,
     {
         assert_future::<Self::Item, B::Error, _>(or_else::new(self, f))
+    }
+
+    fn select<B>(self, other: B) -> Select<Self, B::Future>
+    where
+        B: IntoFuture<Item = Self::Item, Error = Self::Error>,
+        Self: Sized,
+    {
+        let f = select::new(self, other.into_future());
+        assert_future::<
+            (Self::Item, SelectNext<Self, B::Future>),
+            (Self::Error, SelectNext<Self, B::Future>),
+            _,
+        >(f)
     }
 }
 
